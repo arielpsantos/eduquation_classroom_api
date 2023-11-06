@@ -28,9 +28,61 @@ class User:
         self.conn.commit()
         self.conn.close()
         
+    def get_all_users_by_type(self, user_type):
+        self.__create_conn__()
+        cursor = self.__get_cursor__()
+
+        allowed_types= ['administrator', 'aluno', 'professor']
+        
+        if user_type not in allowed_types:
+            self.__close_conn__()
+            raise Exception('not a valid user_type')
+        
+        cursor.execute(f"SELECT * FROM {user_type}")
+        try:
+            user_tuple_list = cursor.fetchall()
+            if user_tuple_list and (user_type == 'aluno'):
+                user_list = []
+                for user in user_tuple_list:    
+                    user = {
+                        "registro": user[0],
+                        "senha": user[1],
+                        "nome": user[2],
+                        "sobrenome": user[3],
+                        "idade": user[4],
+                        "classe_id": user[5],
+                        "user_type": user_type  # Include the user type
+                    }
+                    user_list.append(user)
+                self.__close_conn__()
+                return user_list
+            if user_tuple_list:
+                user_list = []
+                for user in user_tuple_list:
+                    user = {
+                        "registro": user[0],
+                        "senha": user[1],
+                        "nome": user[2],
+                        "sobrenome": user[3],
+                        "idade": user[4],
+                        "user_type": user_type  # Include the user type
+                    }
+                    user_list.append(user)
+                self.__close_conn__()
+                return user_list
+        except:
+            self.__close_conn__()
+            return None
+        
     def get_user_by_registro(self, registro, user_type):
         self.__create_conn__()
         cursor = self.__get_cursor__()
+        
+        allowed_types= ['administrator', 'aluno', 'professor']
+        
+        if user_type not in allowed_types:
+            self.__close_conn__()
+            raise Exception('not a valid user_type')
 
         cursor.execute(f"SELECT * FROM {user_type} WHERE registro = {registro}")
         try:
@@ -108,6 +160,12 @@ class User:
         self.__create_conn__()
         cursor = self.__get_cursor__()
         
+        allowed_types= ['administrator', 'aluno', 'professor']
+        
+        if user_type not in allowed_types:
+            self.__close_conn__()
+            raise Exception('not a valid user_type')
+        
         try:
             if (user_type == 'aluno'):
                 cursor.execute(f"""UPDATE {user_type} 
@@ -133,15 +191,22 @@ class User:
         self.__create_conn__()
         cursor = self.__get_cursor__()
         
+        allowed_types= ['administrator', 'aluno', 'professor']
+        
+        if user_type not in allowed_types:
+            self.__close_conn__()
+            raise Exception('not a valid user_type')
+        
         try:
             if (user_type == 'aluno'):
                 cursor.execute(f"INSERT INTO {user_type} VALUES({user['registro']}, {user['senha']}, {user['nome']}, {user['sobrenome']}, {user['idade']}, {user['classe_id']});")
             else:
                 cursor.execute(f"INSERT INTO {user_type} VALUES({user['registro']}, {user['senha']}, {user['nome']}, {user['sobrenome']}, {user['idade']});")
             self.__close_conn__()
-        except:
+        except Exception as e:
             self.__close_conn__()
-            return None
+            print(e)
+            return e
         
     def delete_from_db(self, registro, user_type):
         self.__create_conn__()

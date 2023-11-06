@@ -1,0 +1,2 @@
+flask_restx==1.2.0
+PyJWT==2.8.0

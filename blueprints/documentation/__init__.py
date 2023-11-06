@@ -3,7 +3,7 @@ from flask_restx import Api
 from blueprints.documentation.users import user_namespace
 from blueprints.documentation.users.administrator import admin_ns 
 
-blueprint = Blueprint('documentation', __name__, url_prefix='/documentation')
+blueprint = Blueprint('documentation', __name__, url_prefix='/api')
 
 authorizations = {
     'bearerAuth': {

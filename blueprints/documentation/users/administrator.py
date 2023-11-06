@@ -77,17 +77,22 @@ user_to_search_model = admin_ns.model('User to search', {
     ),'user_type': fields.String(required=True, description='User Type')
 })
 
+user_list_parser = reqparse.RequestParser()
+user_list_parser.add_argument('user_type', type=str, required=True, help='Type of the user to fetch', location='args')
+
 @admin_ns.route('/operations/users/lists')
 class UserList(Resource):
     @token_required('administrator')
-    @admin_ns.expect(user_to_search_model)
+    @admin_ns.doc(parser=user_list_parser)
     @admin_ns.marshal_with(base_user_model, as_list=True)
-    def get(self):
+    def get(self, _current_user):
         """
         Returns list of users based on user_type.
         """
-        data = request.json
-        return user_dao.get_all_users_by_type(data['user_type'])
+        args = user_list_parser.parse_args()
+        type_to_get = args['user_type']
+        users = user_dao.get_all_users_by_type(type_to_get)
+        return users  # Directly return the list of users
 
 users_parser = reqparse.RequestParser()
 users_parser.add_argument('user_type', type=str, required=True, help='Type of the user to fetch', location='args')
@@ -109,8 +114,6 @@ class UserResource(Resource):
         registro_to_get = args['registro']
         user = user_dao.get_user_by_registro(registro_to_get, type_to_get)
         if user:
-            print(user)
-            print(type(user))
             return user
         return {'message': 'User not found'}, 404
 

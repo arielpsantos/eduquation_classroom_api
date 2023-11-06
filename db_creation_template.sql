@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS professor (
-    registro INTEGER PRIMARY KEY,
+    registro INTEGER PRIMARY KEY AUTOINCREMENT,
     senha TEXT NOT NULL,
     nome TEXT NOT NULL,
     sobrenome TEXT NOT NULL,
@@ -7,12 +7,12 @@ CREATE TABLE IF NOT EXISTS professor (
 );
 
 CREATE TABLE IF NOT EXISTS materia (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS classe (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     professor_registro INTEGER NOT NULL,
     nome TEXT NOT NULL,
     FOREIGN KEY (professor_registro)
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS classe (
 );
 
 CREATE TABLE IF NOT EXISTS aluno (
-    registro INTEGER PRIMARY KEY,
+    registro INTEGER PRIMARY KEY AUTOINCREMENT,
     senha TEXT NOT NULL,
     nome TEXT,
     sobrenome TEXT,
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS aluno (
 );
 
 CREATE TABLE IF NOT EXISTS atividade (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     classe_id INTEGER NOT NULL,
     materia_id INTEGER NOT NULL,
     categoria TEXT NOT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS atividade (
 );
 
 CREATE TABLE IF NOT EXISTS administrator (
-    registro INTEGER PRIMARY KEY,
+    registro INTEGER PRIMARY KEY AUTOINCREMENT,
     senha TEXT NOT NULL,
     nome TEXT NOT NULL,
     sobrenome TEXT NOT NULL,
