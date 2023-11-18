@@ -1,7 +1,8 @@
 from flask import Blueprint
 from flask_restx import Api
 from blueprints.documentation.users import user_namespace
-from blueprints.documentation.users.administrator import admin_ns 
+from blueprints.documentation.users.administrator import admin_ns
+from blueprints.documentation.users.estudante import estudante_ns
 
 blueprint = Blueprint('documentation', __name__, url_prefix='/api')
 
@@ -27,3 +28,4 @@ api_extension = Api(
 
 api_extension.add_namespace(user_namespace, path='/users')
 api_extension.add_namespace(admin_ns, path='/administrator')
+api_extension.add_namespace(estudante_ns, path='/estudante')
