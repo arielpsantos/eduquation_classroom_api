@@ -38,7 +38,8 @@ class UserLogin(Resource):
     login_model = user_namespace.model('Login', {
         'registro': fields.Integer(required=True, description='User Registro'),
         'senha': fields.String(required=True, description='User Senha'),
-        'user_type': fields.String(required=True, description='User Type')
+        'user_type': fields.String(required=True, description='User Type'),
+        'instituicao_id': fields.Integer(required=True, description='User Instituição')
     })
     
     @user_namespace.expect(login_model)
@@ -51,9 +52,10 @@ class UserLogin(Resource):
             nome = data.get('nome')
             senha = data.get('senha')
             user_type = data.get('user_type')
+            instituicao_id = data.get('instituicao_id')
 
             # Validate user and password
-            user = users.User().get_user_by_registro_e_senha(registro, senha, user_type)
+            user = users.User().get_user_by_registro_e_senha(registro, senha, user_type, instituicao_id)
             if not user:
                 user_namespace.abort(401, 'Invalid credentials')
 
@@ -61,7 +63,8 @@ class UserLogin(Resource):
             token_data = {
                 'registro': user['registro'],
                 'senha': user['senha'],
-                'user_type': user['user_type']  # Assume user_type is part of the user object
+                'user_type': user['user_type'],  # Assume user_type is part of the user object
+                'instituicao_id': user['instituicao_id']
             }
             token = jwt.encode(token_data, current_app.config["SECRET_KEY"], algorithm="HS256")
 

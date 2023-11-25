@@ -1,4 +1,4 @@
-# blueprints/documentation/users/administrator.py
+# blueprints/documentation/users/administrador.py
 from flask import jsonify, request, current_app
 from flask_restx import Namespace, Resource, fields, reqparse
 from http import HTTPStatus
@@ -17,7 +17,7 @@ materia_dao = SubjectModel.Materia()
 classe_dao = ClasseModel.Classe()
 
 
-admin_ns = Namespace('admin', description='Administrator related operations')
+admin_ns = Namespace('admin', description='administrador related operations')
 
 
 base_user_model = admin_ns.model('User base', {
@@ -82,7 +82,7 @@ user_list_parser.add_argument('user_type', type=str, required=True, help='Type o
 
 @admin_ns.route('/operations/users/lists')
 class UserList(Resource):
-    @token_required('administrator')
+    @token_required('administrador')
     @admin_ns.doc(parser=user_list_parser)
     @admin_ns.marshal_with(base_user_model, as_list=True)
     def get(self, _current_user):
@@ -102,7 +102,7 @@ users_parser.add_argument('registro', type=int, required=True, help='Registro of
 class UserResource(Resource):
     
 
-    @token_required('administrator')
+    @token_required('administrador')
     @admin_ns.doc(parser=users_parser)
     @admin_ns.marshal_with(base_user_model)
     def get(self, _current_user):
@@ -118,7 +118,7 @@ class UserResource(Resource):
         return {'message': 'User not found'}, 404
 
 
-    @token_required('administrator')
+    @token_required('administrador')
     @admin_ns.expect(user_update_model)
     @admin_ns.marshal_with(base_user_model)
     def put(self, _current_user):
@@ -148,7 +148,7 @@ class UserResource(Resource):
 
 
 
-    @token_required('administrator')
+    @token_required('administrador')
     @admin_ns.expect(user_update_model)
     @admin_ns.marshal_with(base_user_model)  # Adjust the marshal decorator to fit your response model
     def post(self, _current_user):
@@ -172,7 +172,7 @@ class UserResource(Resource):
             return {'message': 'An error occurred during user creation.'}, 500
 
 
-    @token_required('administrator')
+    @token_required('administrador')
     @admin_ns.expect(user_to_search_model)
     @admin_ns.response(204, 'User deleted')
     def delete(self, _current_user):
@@ -224,7 +224,7 @@ materias_parser.add_argument('id', type=int, required=True, help='ID of the mate
 @admin_ns.route('/operations/materias')
 class MateriasResource(Resource):
 
-    @token_required('administrator')
+    @token_required('administrador')
     @admin_ns.doc(parser=materias_parser)  
     @admin_ns.marshal_with(materia_model)
     def get(self, _current_user):
@@ -241,7 +241,7 @@ class MateriasResource(Resource):
         return {'message': 'Materia not found'}, 404
 
 
-    @token_required('administrator')
+    @token_required('administrador')
     @admin_ns.expect(materia_update_model)
     @admin_ns.marshal_with(materia_model)
     def put(self, _current_user):
@@ -257,7 +257,7 @@ class MateriasResource(Resource):
             return materia
         return {'message': 'Materia not found'}, 404
 
-    @token_required('administrator')
+    @token_required('administrador')
     @admin_ns.expect(materia_model_to_search) 
     @admin_ns.response(204, 'Materia deleted')
     def delete(self, _current_user):
@@ -272,7 +272,7 @@ class MateriasResource(Resource):
         return {'message': 'Materia not found'}, 404
 
     # New POST method for adding a materia
-    @token_required('administrator')
+    @token_required('administrador')
     @admin_ns.expect(materia_update_model) 
     @admin_ns.marshal_with(materia_model, code=201) 
     def post(self, _current_user):
@@ -335,7 +335,7 @@ classe_parser.add_argument('id', type=int, required=True, help='ID of the classe
 @admin_ns.route('/operations/classes')
 class ClassesResource(Resource):
 
-    @token_required('administrator')
+    @token_required('administrador')
     @admin_ns.doc(parser=classe_parser)  
     @admin_ns.marshal_with(classe_model)
     def get(self, _current_user):
@@ -350,7 +350,7 @@ class ClassesResource(Resource):
         return {'message': 'Classe not found'}, 404
 
 
-    @token_required('administrator')
+    @token_required('administrador')
     @admin_ns.expect(classe_update_model)
     @admin_ns.marshal_with(classe_model)
     def put(self, _current_user):
@@ -366,7 +366,7 @@ class ClassesResource(Resource):
             return classe
         return {'message': 'Classe not found'}, 404
 
-    @token_required('administrator')
+    @token_required('administrador')
     @admin_ns.expect(classe_model_to_search)
     @admin_ns.response(204, 'Classe deleted')
     def delete(self, _current_user):
@@ -381,7 +381,7 @@ class ClassesResource(Resource):
         return {'message': 'Classe not found'}, 404
 
     
-    @token_required('administrator')
+    @token_required('administrador')
     @admin_ns.expect(classe_update_model)  
     @admin_ns.marshal_with(classe_model, code=201)  
     def post(self, _current_user):
@@ -453,7 +453,7 @@ atividades_parser.add_argument('id', type=int, help='ID of the atividade to fetc
 @admin_ns.route('/operations/atividades')
 class AtividadeResource(Resource):
 
-    @token_required('administrator')
+    @token_required('administrador')
     @admin_ns.doc(parser=atividades_parser)  
     @admin_ns.marshal_with(atividade_model)
     def get(self, _current_user):
@@ -469,7 +469,7 @@ class AtividadeResource(Resource):
         return {'message': 'Atividade not found'}, 404
 
 
-    @token_required('administrator')
+    @token_required('administrador')
     @admin_ns.expect(atividade_update_model)
     @admin_ns.marshal_with(atividade_model)
     def put(self, _current_user):
@@ -485,7 +485,7 @@ class AtividadeResource(Resource):
             return atividade
         return {'message': 'Atividade not found'}, 404
 
-    @token_required('administrator')
+    @token_required('administrador')
     @admin_ns.expect(atividade_model_to_search)
     @admin_ns.response(204, 'Atividade deleted')
     def delete(self, _current_user):
@@ -500,7 +500,7 @@ class AtividadeResource(Resource):
         return {'message': 'Atividade not found'}, 404
 
     
-    @token_required('administrator')
+    @token_required('administrador')
     @admin_ns.expect(atividade_update_model)  
     @admin_ns.marshal_with(atividade_model, code=201) 
     def post(self, _current_user):
