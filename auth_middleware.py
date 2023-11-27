@@ -27,14 +27,15 @@ def token_required(user_type):
                 if data.get("user_type") != user_type:
                     return make_response(jsonify({"message": "Invalid user type!", "error": "Unauthorized"}), 401)
 
-                current_user = users.User().get_user_by_registro(data["registro"], user_type)
+                current_user = users.User().get_user_by_registro(data["registro"], user_type, instituicao_id=data['instituicao_id'])
                 if current_user is None:
                     return make_response(jsonify({"message": "Invalid Authentication token!", "error": "Unauthorized"}), 401)
 
             except Exception as e:
                 return make_response(jsonify({"message": "Something went wrong", "error": str(e)}), 500)
 
-            return f(current_user, *args, **kwargs)
+            kwargs['_current_user'] = current_user
+            return f(*args, **kwargs)
 
         return decorated
     return token_required_inner

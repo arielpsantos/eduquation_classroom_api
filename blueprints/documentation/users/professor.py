@@ -44,22 +44,21 @@ nota_parser.add_argument('materia_id', type=int, help='Materia ID for the nota',
 
 @professor_ns.route('/atividades')
 class AtividadeResource(Resource):
-
+    method_decorators = [token_required('administrador')]
     @token_required('professor')
     @professor_ns.expect(atividade_parser)
     @professor_ns.marshal_list_with(atividade_model)  # Assuming we can have multiple atividades returned.
     def get(self, _current_user):
-        """
-        Get atividades based on various filters.
-        """
         args = atividade_parser.parse_args(strict=True)
         id = args.get('id')
         classe_id = args.get('classe_id')
         materia_id = args.get('materia_id')
 
+        instituicao_id = _current_user['instituicao_id'] # Extract instituicao_id from _current_user
+
         # Fetching a single atividade by id
         if id:
-            atividade = atividade_dao.get_atividade_by_id(id)
+            atividade = atividade_dao.get_atividade_by_id(id, instituicao_id)
             if atividade:
                 return [atividade]  # Return a list with a single atividade
             professor_ns.abort(HTTPStatus.NOT_FOUND, 'Atividade not found')
@@ -93,29 +92,28 @@ class AtividadeResource(Resource):
     @token_required('professor')
     @professor_ns.expect(atividade_model)
     def post(self, _current_user):
-        """
-        Create a new atividade.
-        """
+        instituicao_id = _current_user['instituicao_id']
         data = request.json
         try:
-            new_atividade_id = atividade_dao.add_atividade(data['classe_id'], data['materia_id'], data['categoria'])
+            new_atividade_id = atividade_dao.add_atividade(
+                data['classe_id'], data['materia_id'], data['categoria'], instituicao_id
+            )
             if new_atividade_id:
                 return {'message': 'Atividade created', 'id': new_atividade_id}, HTTPStatus.CREATED
-        except BadRequest as e:
+        except Exception as e:
             return {'message': 'Failed to create atividade', 'error': str(e)}, HTTPStatus.BAD_REQUEST
 
     @token_required('professor')
     @professor_ns.expect(atividade_model)
     def put(self, _current_user):
-        """
-        Update an existing atividade.
-        """
+        instituicao_id = _current_user['instituicao_id']
         data = request.json
-        atividade = atividade_dao.get_atividade_by_id(data['id'])
+        atividade = atividade_dao.get_atividade_by_id(data['id'], instituicao_id)
         if not atividade:
             professor_ns.abort(HTTPStatus.NOT_FOUND, 'Atividade not found')
 
-        updated_atividade = atividade_dao.update_atividade(data)
+        # Assume update_atividade now takes instituicao_id as a parameter
+        updated_atividade = atividade_dao.update_atividade(data, instituicao_id)
         if updated_atividade:
             return {'message': 'Atividade updated successfully'}, HTTPStatus.OK
         return {'message': 'Failed to update atividade'}, HTTPStatus.BAD_REQUEST
@@ -123,20 +121,19 @@ class AtividadeResource(Resource):
     @token_required('professor')
     @professor_ns.expect(atividade_parser)
     def delete(self, _current_user):
-        """
-        Delete an existing atividade by ID.
-        """
+        instituicao_id = _current_user['instituicao_id']
         args = atividade_parser.parse_args(strict=True)
         id = args.get('id')
 
         if not id:
             professor_ns.abort(HTTPStatus.BAD_REQUEST, 'ID is required')
 
-        atividade = atividade_dao.get_atividade_by_id(id)
+        atividade = atividade_dao.get_atividade_by_id(id, instituicao_id)
         if not atividade:
             professor_ns.abort(HTTPStatus.NOT_FOUND, 'Atividade not found')
 
-        deleted = atividade_dao.delete_atividade(id)
+        # Assume delete_atividade now takes instituicao_id as a parameter
+        deleted = atividade_dao.delete_atividade(id, instituicao_id)
         if deleted:
             return {'message': 'Atividade deleted successfully'}, HTTPStatus.OK
         return {'message': 'Failed to delete atividade'}, HTTPStatus.BAD_REQUEST
@@ -144,22 +141,20 @@ class AtividadeResource(Resource):
 
 @professor_ns.route('/notas')
 class NotaResource(Resource):
-
+    method_decorators = [token_required('administrador')]
     @token_required('professor')
     @professor_ns.expect(nota_parser)
     @professor_ns.marshal_list_with(nota_model)
     def get(self, _current_user):
-        """
-        Get notas based on various filters.
-        """
         args = nota_parser.parse_args(strict=True)
         aluno_registro = args.get('aluno_registro')
         classe_id = args.get('classe_id')
         materia_id = args.get('materia_id')
+        instituicao_id = _current_user['instituicao_id']  # Extract instituicao_id from _current_user
 
-        # If an aluno_registro is provided, return notas for that aluno
+        # Fetch notas based on provided filters, ensuring to pass the instituicao_id from _current_user
         if aluno_registro:
-            notas = nota_dao.get_notas_by_aluno_registro(aluno_registro)
+            notas = nota_dao.get_notas_by_aluno_registro(aluno_registro, instituicao_id)
             if notas:
                 return notas
             professor_ns.abort(HTTPStatus.NOT_FOUND, 'Notas not found for the provided aluno_registro')
@@ -193,17 +188,15 @@ class NotaResource(Resource):
     @token_required('professor')
     @professor_ns.expect(nota_model)
     def put(self, _current_user):
-        """
-        Update a nota by its ID.
-        """
         data = request.json
         id = data.get('id')
-        nota = data.get('nota')
+        nota_value = data.get('nota')
+        instituicao_id = _current_user['instituicao_id']  # Extract instituicao_id from _current_user
 
-        if not id or nota is None:
+        if not id or nota_value is None:
             professor_ns.abort(HTTPStatus.BAD_REQUEST, 'ID and nota are required')
 
-        updated = nota_dao.update_nota(id, nota)
+        updated = nota_dao.update_nota(id, nota_value, instituicao_id)  # Pass instituicao_id to the DAO method
         if updated:
             return {'message': 'Nota updated successfully'}, HTTPStatus.OK
         return {'message': 'Failed to update nota'}, HTTPStatus.BAD_REQUEST

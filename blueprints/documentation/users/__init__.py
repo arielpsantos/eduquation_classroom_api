@@ -8,29 +8,6 @@ import jwt, traceback
 
 user_namespace = Namespace('users', 'users login with jwt')
 
-user_model = user_namespace.model('User', {
-    'registro': fields.Integer(
-        readonly=True,
-        description='User identifier'
-    ),
-    'senha': fields.String(
-        required=True,
-        description='User senha'
-    ),
-    'nome': fields.String(
-        required=True,
-        description='User nome'
-    ),
-    'sobrenome': fields.String(
-        required=True,
-        description='User sobrenome'
-    ),
-    'idade': fields.Integer(
-        required=True,
-        description='User idade'
-    )
-})
-
 @user_namespace.route('/login')
 class UserLogin(Resource):
     
@@ -55,7 +32,7 @@ class UserLogin(Resource):
             instituicao_id = data.get('instituicao_id')
 
             # Validate user and password
-            user = users.User().get_user_by_registro_e_senha(registro, senha, user_type, instituicao_id)
+            user = users.User().get_user_by_registro_e_senha(registro, senha, user_type, instituicao_id=instituicao_id)
             if not user:
                 user_namespace.abort(401, 'Invalid credentials')
 

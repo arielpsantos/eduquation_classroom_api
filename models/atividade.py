@@ -20,11 +20,11 @@ class Atividade:
         self.conn.commit()
         self.conn.close()
 
-    def get_atividade_by_id(self, id):
+    def get_atividade_by_id(self, id, instituicao_id):
         self.__create_conn__()
         cursor = self.__get_cursor__()
 
-        cursor.execute("SELECT * FROM atividade WHERE id = ?", (id,))
+        cursor.execute("SELECT * FROM atividade WHERE id = ? AND instituicao_id = ?", (id, instituicao_id))
         try:
             atividade_tuple = cursor.fetchone()
             if atividade_tuple:
@@ -33,6 +33,7 @@ class Atividade:
                     "classe_id": atividade_tuple[1],
                     "materia_id": atividade_tuple[2],
                     "categoria": atividade_tuple[3],
+                    "instituicao_id": atividade_tuple[4]
                 }
                 self.__close_conn__()
                 return atividade
@@ -40,14 +41,15 @@ class Atividade:
             self.__close_conn__()
             return None
 
-    def add_atividade(self, classe_id, materia_id, categoria):
+
+    def add_atividade(self, classe_id, materia_id, categoria, instituicao_id):
         self.__create_conn__()
         cursor = self.__get_cursor__()
         
         try:
             cursor.execute(
-                "INSERT INTO atividade (classe_id, materia_id, categoria) VALUES (?, ?, ?);", 
-                (classe_id, materia_id, categoria)
+                "INSERT INTO atividade (classe_id, materia_id, categoria, instituicao_id) VALUES (?, ?, ?, ?);", 
+                (classe_id, materia_id, categoria, instituicao_id)
             )
             new_id = cursor.lastrowid
             self.__close_conn__()
@@ -56,7 +58,8 @@ class Atividade:
             self.__close_conn__()
             return None
 
-    def update_atividade(self, atividade):
+
+    def update_atividade(self, atividade, instituicao_id):
         self.__create_conn__()
         cursor = self.__get_cursor__()
         
@@ -64,20 +67,22 @@ class Atividade:
         
         try:
             cursor.execute(
-                "UPDATE atividade SET classe_id = ?, materia_id = ?, categoria = ? WHERE id = ?;", 
-                (classe_id, materia_id, categoria, id)
+                "UPDATE atividade SET classe_id = ?, materia_id = ?, categoria = ? WHERE id = ? AND instituicao_id = ?;", 
+                (classe_id, materia_id, categoria, id, instituicao_id)
             )
             self.__close_conn__()
         except sqlite3.Error as e:
             self.__close_conn__()
             return None
 
-    def delete_atividade(self, id):
+
+    def delete_atividade(self, id, instituicao_id):
         self.__create_conn__()
         cursor = self.__get_cursor__()
         try:
-            cursor.execute("DELETE FROM atividade WHERE id = ?;", (id,))
+            cursor.execute("DELETE FROM atividade WHERE id = ? AND instituicao_id = ?;", (id, instituicao_id))
             self.__close_conn__()
         except sqlite3.Error as e:
             self.__close_conn__()
             return None
+

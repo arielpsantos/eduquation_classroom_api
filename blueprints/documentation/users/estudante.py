@@ -81,41 +81,42 @@ activity_submission_parser.add_argument('atividade_id', type=int, required=True,
 @estudante_ns.route('/alunos/<int:registro>/grades')
 @estudante_ns.param('registro', 'The Aluno registration number')
 class AlunoGradesResource(Resource):
-
+    method_decorators = [token_required('administrador')]
     @token_required('aluno')
     @estudante_ns.marshal_list_with(nota_model)
     def get(self, registro, _current_user):
-        """
-        Returns the grades for the aluno's activities.
-        """
-        if _current_user.registro != registro:
+        instituicao_id = _current_user['instituicao_id']
+        if _current_user['registro'] != registro:
             estudante_ns.abort(HTTPStatus.FORBIDDEN, 'Access is denied')
 
-        grades = nota_dao.get_notas_by_aluno_registro(registro)
+        grades = nota_dao.get_notas_by_aluno_registro(registro, instituicao_id)
         if grades:
             return grades
         else:
             return {'message': 'No grades found'}, HTTPStatus.NOT_FOUND
 
 
+
 @estudante_ns.route('/alunos/<int:registro>/submit_activity')
 @estudante_ns.param('registro', 'The Aluno registration number')
 class AlunoActivitySubmitResource(Resource):
-
+    method_decorators = [token_required('administrador')]
     @token_required('aluno')
     @estudante_ns.expect(activity_submission_parser)
     @estudante_ns.response(201, 'Activity submitted successfully')
     def post(self, registro, _current_user):
-        """
-        Submits an activity grade.
-        """
-        if _current_user.registro != registro:
+        instituicao_id = _current_user['instituicao_id']
+        if _current_user['registro'] != registro:
             estudante_ns.abort(HTTPStatus.FORBIDDEN, 'Access is denied')
 
         args = activity_submission_parser.parse_args(strict=True)
-        submission_success = nota_dao.add_nota(args['atividade_id'], registro, 'null')
+        # Assuming 'add_nota' now also accepts 'nota' and 'instituicao_id' as parameters
+        submission_success = nota_dao.add_nota(
+            args['atividade_id'], registro, 'null', instituicao_id
+        )
         
         if submission_success:
             return {'message': 'Activity submitted successfully'}, HTTPStatus.CREATED
         else:
             return {'message': 'Submission failed'}, HTTPStatus.BAD_REQUEST
+

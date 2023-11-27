@@ -12,10 +12,10 @@ conn = sqlite3.connect(db_file)
 # Create a cursor object to interact with the database
 cursor = conn.cursor()
 
-query = f"SELECT * FROM {'aluno'} WHERE registro = ?"# AND senha = ?"
+query = f"SELECT * FROM usuario WHERE registro = ?"# AND senha = ?"
 
 # Execute the query with parameters
-cursor.execute(query, (1))#, 'admin'))
+cursor.execute(query, (1,))#, 'admin'))
 
 admin = cursor.fetchone()
 print(type(admin))
@@ -28,7 +28,14 @@ conn.close()
 import secrets
 
 secret_key = secrets.token_hex(16)  # This will give you a 32 characters long string
-print(secret_key)
+#print(secret_key)
 
 
-print(f"All good boy'o")
+print(f"All good boy'o\n")
+
+
+import models.user as UserModel
+user_dao = UserModel.User()
+
+user_list = user_dao.get_user_by_registro_e_senha(1, 'admin', 'administrador', 1)
+print(user_list)
